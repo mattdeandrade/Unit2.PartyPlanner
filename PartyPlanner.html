@@ -6,12 +6,34 @@
 
   <body>
     <header>List of Upcoming Parties</header>
+    <table id="parties" name="parties" type="parties">
+    <th scope="col">Party</th>
+        <th scope="col">Date</th>
+        <th scope="col">Time</th>
+        <th scope="col">Location</th>
+        <th scope="col">Description</th>
+        <tr class="parties"><td class="parties"></td></tr>
+        <tbody class="parties"></tbody>
+     
     <form class>
       <label>
-        Add a Party.
+        Add a Party:
         <input id="partyName" name="partyName" type="partyName" />
+        <label>Add a date:</label>
+        <input id="partyDate" name="partyDate" type="partyDate" />
       </label>
-      <button>Add Name</button>
+      <label>Add time:</label>
+      <input id="partyTime" name="partyTime" type="partyTime" />
+    </label>
+    <label>Add location:</label>
+    <input id="partyLocation" name="partyLocation" type="partyLocation" />
+  </label>
+  <label>Add description:</label>
+  <input id="partyDescription" name="partyDescription" type="partyDescription" />
+</label>
+      <button>Submit</button>
+     
     </form>
+  </table>
   </body>
 </html>
