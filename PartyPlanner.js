@@ -19,28 +19,44 @@ const loadParties = async () => {
 };
 
 loadParties();
-//TODO retrieve parties from Databse
 
 let initialKey = 0;
 function addParty(pname, pdate, plocation, pdescription) {
   const newParty = {};
-  newParty.key = initialKey;
+  newParty.id = initialKey;
   newParty.name = pname;
   newParty.date = pdate;
   newParty.location = plocation;
   newParty.description = pdescription;
   parties.push(newParty);
   console.log(parties);
+  addPartyToDatabase(newParty);
   render();
   initialKey++;
   //TODO add to Database
 }
 
+const addPartyToDatabase = async (party) => {
+  try {
+    const response = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(party),
+    });
+    if (!response.ok) {
+      const parsed = await response.json();
+      throw new Error(parsed.error.message);
+    }
+  } catch (e) {
+    console.error(e);
+  }
+};
+
 function deleteParty(key) {
   const newPartiesSize = parties.length - 1;
 
   for (let i = key; i < newPartiesSize; i++) {
-    parties[i].key == parties[i + 1].key;
+    parties[i].id == parties[i + 1].id;
     parties[i].name = parties[i + 1].name;
     parties[i].date = parties[i + 1].date;
     parties[i].location = parties[i + 1].location;
@@ -74,7 +90,7 @@ $form.addEventListener("submit", (event) => {
 function render() {
   const $parties = parties.map((party) => {
     const $row = document.createElement("tr");
-    const $key = party.key;
+    const $id = party.id;
     const $partyName = document.createElement("td");
     $partyName.textContent = party.name;
     $row.appendChild($partyName);
@@ -95,7 +111,7 @@ function render() {
     $deleteBTN.textContent = "Delete this Party";
     $deleteBTN.addEventListener("click", (event) => {
       event.preventDefault();
-      deleteParty($key);
+      deleteParty($id);
     });
     $row.appendChild($deleteBTN);
 
