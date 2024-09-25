@@ -1,19 +1,32 @@
-const COHORT = "2408-matt";
-const API_URL = `https://fsa-crud-2aa9294fe819.herokuapp.com/api/${COHORT}`;
+const COHORT = "2408-mattd";
+const API_URL = `https://fsa-crud-2aa9294fe819.herokuapp.com/api/${COHORT}/events`;
 
-const parties = [];
-function loadParties() {
-  //TODO retrieve parties from Databse
-}
+let parties = [];
+const loadParties = async () => {
+  try {
+    const response = await fetch(API_URL);
+    const parsed = await response.json();
 
-//function call loadParties
+    if (!response.ok) {
+      throw new Error(parsed.error.message);
+    }
+    const fetchedData = parsed.data;
+    for (party of fetchedData)
+      addParty(party.name, party.date, party.location, party.description);
+  } catch (e) {
+    console.error(e);
+  }
+};
+
+loadParties();
+//TODO retrieve parties from Databse
+
 let initialKey = 0;
-function addParty(pname, pdate, ptime, plocation, pdescription) {
+function addParty(pname, pdate, plocation, pdescription) {
   const newParty = {};
   newParty.key = initialKey;
   newParty.name = pname;
   newParty.date = pdate;
-  newParty.time = ptime;
   newParty.location = plocation;
   newParty.description = pdescription;
   parties.push(newParty);
@@ -30,12 +43,12 @@ function deleteParty(key) {
     parties[i].key == parties[i + 1].key;
     parties[i].name = parties[i + 1].name;
     parties[i].date = parties[i + 1].date;
-    parties[i].time = parties[i + 1].time;
     parties[i].location = parties[i + 1].location;
     parties[i].description = parties[i + 1].description;
 
     //TODO delete from Database
   }
+  initialKey--;
   parties.pop();
   render();
 }
@@ -46,24 +59,22 @@ $form.addEventListener("submit", (event) => {
 
   const $partyName = document.querySelector("#partyName");
   const $partyDate = document.querySelector("#partyDate");
-  const $partyTime = document.querySelector("#partyTime");
+
   const $partyLocation = document.querySelector("#partyLocation");
   const $partyDescription = document.querySelector("#partyDescription");
 
   const pname = $partyName.value;
-  const pdate = $partyDate.value;
-  const ptime = $partyTime.value;
+  const pdate = new Date($partyDate.value).toISOString();
   const plocation = $partyLocation.value;
   const pdescription = $partyDescription.value;
 
-  addParty(pname, pdate, ptime, plocation, pdescription);
+  addParty(pname, pdate, plocation, pdescription);
 });
-console.log(parties);
 
 function render() {
   const $parties = parties.map((party) => {
     const $row = document.createElement("tr");
-
+    const $key = party.key;
     const $partyName = document.createElement("td");
     $partyName.textContent = party.name;
     $row.appendChild($partyName);
@@ -71,10 +82,6 @@ function render() {
     const $partyDate = document.createElement("td");
     $partyDate.textContent = party.date;
     $row.appendChild($partyDate);
-
-    const $partyTime = document.createElement("td");
-    $partyTime.textContent = party.time;
-    $row.appendChild($partyTime);
 
     const $partyLocation = document.createElement("td");
     $partyLocation.textContent = party.location;
@@ -88,7 +95,7 @@ function render() {
     $deleteBTN.textContent = "Delete this Party";
     $deleteBTN.addEventListener("click", (event) => {
       event.preventDefault();
-      deleteParty(party.key);
+      deleteParty($key);
     });
     $row.appendChild($deleteBTN);
 
@@ -99,4 +106,3 @@ function render() {
   $partiesList.replaceChildren(...$parties);
 }
 console.log(parties);
-console.log(initialKey);
