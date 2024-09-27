@@ -1,8 +1,8 @@
 const COHORT = "2408-mattd";
-const API_URL = `https://fsa-crud-2aa9294fe819.herokuapp.com/api/${COHORT}/events`;
+const API_URL = `https://fsa-crud-2aa9294fe819.herokuapp.com/api/${COHORT}/events/`;
 
-let parties = [];
-const loadParties = async () => {
+const parties = [];
+const init = async () => {
   try {
     const response = await fetch(API_URL);
     const parsed = await response.json();
@@ -10,31 +10,40 @@ const loadParties = async () => {
     if (!response.ok) {
       throw new Error(parsed.error.message);
     }
-    const fetchedData = parsed.data;
-    for (party of fetchedData)
-      addParty(party.name, party.date, party.location, party.description);
+    let theData = parsed.data;
+    for (party of theData) {
+      parties.push(party);
+    }
   } catch (e) {
     console.error(e);
   }
+  render();
 };
 
-loadParties();
+const $partyForm = document.querySelector("form");
+$partyForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
 
-let initialKey = 0;
-function addParty(pname, pdate, plocation, pdescription) {
-  const newParty = {};
-  newParty.id = initialKey;
-  newParty.name = pname;
-  newParty.date = pdate;
-  newParty.location = plocation;
-  newParty.description = pdescription;
-  parties.push(newParty);
-  console.log(parties);
-  addPartyToDatabase(newParty);
-  render();
-  initialKey++;
-  //TODO add to Database
-}
+  const $partyFormName = document.querySelector("#partyName");
+  const $partyFormDate = document.querySelector("#partyDate");
+  const $partyFormLocation = document.querySelector("#partyLocation");
+  const $partyFormDescription = document.querySelector("#partyDescription");
+
+  const party = {
+    name: $partyFormName.value,
+    date: new Date($partyFormDate.value).toISOString(),
+    location: $partyFormLocation.value,
+    description: $partyFormDescription.value,
+  };
+  await addPartyToDatabase(party);
+});
+
+/* const thing = {
+  name: "holiday",
+  description: "festivus for the rest of us",
+  location: "000 street",
+  date: "2011-10-05T14:48:00.000Z",
+}; */
 
 const addPartyToDatabase = async (party) => {
   try {
@@ -43,60 +52,29 @@ const addPartyToDatabase = async (party) => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(party),
     });
-    if (!response.ok) {
-      const parsed = await response.json();
-      throw new Error(parsed.error.message);
+    const result = await response.json();
+    console.log(result);
+
+    if (result.success) {
+      parties.push(result.data);
     }
   } catch (e) {
     console.error(e);
   }
-};
-
-function deleteParty(key) {
-  const newPartiesSize = parties.length - 1;
-
-  for (let i = key; i < newPartiesSize; i++) {
-    parties[i].id == parties[i + 1].id;
-    parties[i].name = parties[i + 1].name;
-    parties[i].date = parties[i + 1].date;
-    parties[i].location = parties[i + 1].location;
-    parties[i].description = parties[i + 1].description;
-
-    //TODO delete from Database
-  }
-  initialKey--;
-  parties.pop();
   render();
-}
-
-const $form = document.querySelector("form");
-$form.addEventListener("submit", (event) => {
-  event.preventDefault();
-
-  const $partyName = document.querySelector("#partyName");
-  const $partyDate = document.querySelector("#partyDate");
-
-  const $partyLocation = document.querySelector("#partyLocation");
-  const $partyDescription = document.querySelector("#partyDescription");
-
-  const pname = $partyName.value;
-  const pdate = new Date($partyDate.value).toISOString();
-  const plocation = $partyLocation.value;
-  const pdescription = $partyDescription.value;
-
-  addParty(pname, pdate, plocation, pdescription);
-});
+};
 
 function render() {
   const $parties = parties.map((party) => {
     const $row = document.createElement("tr");
-    const $id = party.id;
+    const readDate = new Date(party.date);
+
     const $partyName = document.createElement("td");
     $partyName.textContent = party.name;
     $row.appendChild($partyName);
 
     const $partyDate = document.createElement("td");
-    $partyDate.textContent = party.date;
+    $partyDate.textContent = readDate;
     $row.appendChild($partyDate);
 
     const $partyLocation = document.createElement("td");
@@ -109,16 +87,48 @@ function render() {
 
     const $deleteBTN = document.createElement("button");
     $deleteBTN.textContent = "Delete this Party";
-    $deleteBTN.addEventListener("click", (event) => {
+    $deleteBTN.addEventListener("click", async (event) => {
       event.preventDefault();
-      deleteParty($id);
+      await deleteFromDatabase(party);
+      render();
     });
     $row.appendChild($deleteBTN);
-
     return $row;
   });
-
   const $partiesList = document.querySelector(".parties");
   $partiesList.replaceChildren(...$parties);
 }
+
+async function deleteFromDatabase(party) {
+  fetch(API_URL + party.id, {
+    method: "DELETE",
+  });
+  try {
+    const response = await fetch(API_URL + party.id, {
+      method: "DELETE",
+    });
+
+    if (!response.ok) {
+      const parsed = await response.json();
+      throw new Error(parsed.error.message);
+    }
+  } catch (e) {
+    console.error(e);
+  }
+  deleteFromArray(party);
+  render();
+}
+
+function deleteFromArray(party) {
+  let index;
+  for (let i = 0; i < parties.length; i++) {
+    if (parties[i].id === party.id) index = i;
+  }
+  for (let i = index; i < parties.length - 1; i++) {
+    parties[i] = parties[i + 1];
+  }
+  parties.pop();
+}
+
+init();
 console.log(parties);

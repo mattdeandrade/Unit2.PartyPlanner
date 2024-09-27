@@ -6,6 +6,32 @@
   </head>
 
   <body>
+    <form class>
+      <label
+        >Add a Party:<input id="partyName" name="partyName" type="partyName"
+      /></label>
+
+      <label
+        >Add a date:<input id="partyDate" name="partyDate" type="date"
+      /></label>
+
+      <label
+        >Add location:<input
+          id="partyLocation"
+          name="partyLocation"
+          type="partyLocation"
+      /></label>
+
+      <label
+        >Add description:
+        <input
+          id="partyDescription"
+          name="partyDescription"
+          type="partyDescription"
+      /></label>
+
+      <button>Submit</button>
+    </form>
     <header>List of Upcoming Parties</header>
     <table id="parties" name="parties" type="parties">
       <thead>
@@ -16,31 +42,8 @@
           <th scope="col">Description</th>
         </tr>
       </thead>
-      <tr class="parties">
-        <td class="parties"></td>
-      </tr>
 
       <tbody class="parties"></tbody>
-
-      <form class>
-        <label>Add a Party:</label>
-        <input id="partyName" name="partyName" type="partyName" />
-
-        <label>Add a date:</label>
-        <input id="partyDate" name="partyDate" type="date" />
-
-        <label>Add location:</label>
-        <input id="partyLocation" name="partyLocation" type="partyLocation" />
-
-        <label>Add description:</label>
-        <input
-          id="partyDescription"
-          name="partyDescription"
-          type="partyDescription"
-        />
-
-        <button>Submit</button>
-      </form>
     </table>
   </body>
 </html>
